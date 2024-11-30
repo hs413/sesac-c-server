@@ -35,11 +35,13 @@ class NoticeServiceTest {
     Student student;
     Manager manager;
 
+    Campus campus;
+    Course course;
     @BeforeEach
     public void setUp() {
         Fixture.em = em;
-        Campus campus = Fixture.createCampus("영등포");
-        Course course = Fixture.createCourse("영등포 자바", campus);
+        campus = Fixture.createCampus("영등포");
+        course = Fixture.createCourse("영등포 자바", campus);
 
         student = Fixture.createStudent("student1", course, 10);
         manager = Fixture.createManager("manager1", campus);
@@ -52,7 +54,7 @@ class NoticeServiceTest {
     public void create() {
         // give
         CreateNoticeRequest request =
-                new CreateNoticeRequest("제목", "내용", "", null, null);
+                new CreateNoticeRequest("제목", "내용", "", null, null, course.getId());
 
         // when
         Notice created = noticeService.createNotice(manager.getId(), request, NoticeType.ALL);
@@ -80,12 +82,12 @@ class NoticeServiceTest {
         em.clear();
 
         // when
-        NoticeResponse notice = noticeService.getNotice(created.getId());
+        NoticeResponse notice = noticeService.getNotice(manager.getUser().getId(), created.getId());
 
         // then
         assertThat(notice.title()).isEqualTo("제목");
         assertThat(notice.content()).isEqualTo("내용");
-        assertThat(notice.writer()).isEqualTo(manager.getCampus().getName());
+        assertThat(notice.campusName()).isEqualTo(manager.getCampus().getName());
     }
 
     // TODO 테스트 코드 수정
